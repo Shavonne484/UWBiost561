@@ -17,3 +17,22 @@ knitr::opts_chunk$set(
 ```{r setup}
 plot(1:10)
 ```
+
+
+#Q0
+
+Question 0A: Please let me know your preferred name and preferred pronouns.
+
+Shavone: She/Her/Hers
+
+Question 0B: Please read the syllabus in its entirety and write, “I have read and understood the entire syllabus,” for this question. If you have any questions about the syllabus (for example, on the homework submission policy or collaboration policy), you may ask them here.
+
+“I have read and understood the entire syllabus”
+
+Question 0C: If any, please briefly describe the courses you have taken at UW that involve coding (in any language) so far and how familiar/comfortable you are in coding in R. (Note: I do not expect you to have taken any such courses already.)
+
+BIOST 514/515, BIOST 546: all about R
+
+Question 0D: What do you hope to learn from this course? (It is alright if you leave this blank, but it would be helpful to hear your thoughts.)
+
+

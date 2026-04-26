@@ -1,0 +1,4 @@
+"0","library(knitr)"
+"0","knitr::opts_chunk$set(echo = FALSE)"
+"0","labs = knitr::all_labels()"
+"0","labs = labs[!labs %in% c(""setup"", ""allcode"")]"

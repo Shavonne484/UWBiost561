@@ -1,0 +1,2 @@
+"0","country_birth <- readr::read_csv(""https://raw.githubusercontent.com/linnykos/561_s2026_public/main/HW2_files/country_birth.csv"")"
+"0","country_birth"

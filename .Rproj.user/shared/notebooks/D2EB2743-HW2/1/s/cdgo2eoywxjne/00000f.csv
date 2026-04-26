@@ -1,0 +1,1 @@
+"0","adj_mat2 <- result$adj_mat[result$rev_order, result$rev_order]"

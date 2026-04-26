@@ -1,0 +1,4 @@
+"0","country_population %>%"
+"0","  filter(between(year,1990,2010)) %>%"
+"0","  group_by(iso3c,country) %>%"
+"0","  summarize(mean_popoulation = mean(population))"

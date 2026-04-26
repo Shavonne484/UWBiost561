@@ -1,6 +1,6 @@
 ---
 title: "BIOST 561: Homework 2"
-date: "Due date: 11:59am on Sunday, April 26th, 2026"
+date: "Due date: 11:59am on Sunday, April 26nd, 2026"
 output: 
   bookdown::html_document2:
     number_sections: false
@@ -282,7 +282,7 @@ Figure \@ref(fig:facet) shows the plot you are trying to reproduce.
 knitr::include_graphics("https://raw.githubusercontent.com/linnykos/561_s2026_public/main/HW2_files/facet.png")
 ```
 
-```{r,Q2-B}
+```{r,Q2-C}
 facet_plot <- ggplot(
   data = penguins,
   aes(x = bill_depth_mm, y = bill_length_mm, color = species)
@@ -514,6 +514,7 @@ Please do not use ChatGPT for this specific question.)
 3. We can test the function by some edge cases(empty graph with no edges or a complete graph with every node connected to every other). In these cases, the correct maximal clique is obvious by definition. We can easily test the result.
 
 4. Since we know which node indices correspond to the planted clique from generate_random_graph(), we can compare the output of our functions with rev_order(), the known answer in generate_random_graph() to check the correctness.
+
 </div>
 
 # Q5: Feedback (Optional)

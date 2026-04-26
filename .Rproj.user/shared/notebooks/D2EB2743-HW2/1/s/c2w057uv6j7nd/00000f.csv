@@ -1,2 +1,0 @@
-"0","penguins <- readr::read_csv(""https://raw.githubusercontent.com/linnykos/561_s2026_public/main/HW2_files/palmerpenguins.csv"")"
-"0","penguins"

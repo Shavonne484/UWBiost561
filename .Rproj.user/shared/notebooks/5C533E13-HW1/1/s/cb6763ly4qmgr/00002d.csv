@@ -1,6 +1,0 @@
-"0","#Question 2-2"
-"0","cf$sex <- factor(cf$sex)"
-"0","sex_summary <- cf %>%"
-"0","  group_by(sex) %>%"
-"0","  summarise(n_number = n())"
-"0","sex_summary"

@@ -1,8 +1,0 @@
-"0","#Question 2-1 "
-"0","obs_per_person <- cf %>%"
-"0","  group_by(id) %>%"
-"0","  summarise(n_obs = n())"
-"0","obs_distribution <- obs_per_person %>%"
-"0","  group_by(n_obs) %>%"
-"0","  summarise(frequency = n())"
-"0","obs_distribution"

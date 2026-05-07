@@ -1,18 +1,18 @@
 Package: UWBiost561
-Title: What the Package Does (One Line, Title Case)
+Title: UW Biostatistics 561 Homework Package
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Shavonne", "Shen", , "qshen25@uw.edu", role = c("aut", "cre"))
+Description: Contains homework materials, vignettes, and supporting code for BIOST 561.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests: 
-  knitr,
-  rmarkdown,
-  bookdown,
-  tidyverse,
-  ggplot2
+    knitr,
+    rmarkdown,
+    bookdown,
+    tidyverse,
+    ggplot2,
+    readr
 VignetteBuilder: knitr

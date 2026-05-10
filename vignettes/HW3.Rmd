@@ -394,11 +394,19 @@ knitr::include_graphics("https://github.com/linnykos/561_s2026_public/blob/main/
 
 ```
 
+```{r, echo=TRUE, out.width = "400px", fig.align="center", echo = FALSE, fig.cap=c("First screenshot in Question 4C.")}
+knitr::include_graphics("figures/check_first_20.png")
+```
+
+```{r, echo=TRUE, out.width = "400px", fig.align="center", echo = FALSE, fig.cap=c("Second screenshot in Question 4C.")}
+knitr::include_graphics("figures/check_last_20.png")
+```
+
 
 <u>**Question 4D**</u>: Please include the following code chunk's result in your Markdown file. (If you are copy-pasting the following R chunk,
 remove the `eval = FALSE` tag.) This will be useful for me (Kevin) to assess which packages and R version you are using.
 
-```{r, eval = FALSE}
+```{r}
 devtools::session_info()
 ```
 
@@ -451,6 +459,10 @@ you already have all the R code, and all that remains is "everything else."
 I do not care about how many or complex your functions are.
 Realistically, you can use just a meaningful subset of functions in your existing code base
 for this project.)
+
+<div style="border-left: 4px solid #4A90D9; padding-left: 10px;">
+For my final project, I want to build an R package for numerical integration. The package would implement Riemann sums, the trapezoidal rule or other integration rules, and compare its accuracy on example functions with known exact integrals.
+</div>
 
 <u>**Question 5B**</u>: Push <u>**all**</u> your code onto GitHub. This includes all the contents inside your `R` and `tests` folder and your `DESCRIPTION`, `NAMESPACE`, and `LICENSE` files. Please double-check that you can see all the necessary files online on the GitHub website (i.e., https://github.com/).
 <span style="color: blue;">(There is nothing to report for this question.)</span>

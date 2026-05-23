@@ -76,7 +76,7 @@ generate_partial_clique <- function(n = 50,
   clique_size <- round(n * clique_fraction)
 
   if (clique_size >= 2) {
-    possible_edges <- t(combn(1:clique_size, 2))
+    possible_edges <- t(utils::combn(1:clique_size, 2))
 
     max_edges <- clique_size * (clique_size - 1) / 2
 

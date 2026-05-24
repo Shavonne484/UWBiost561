@@ -7,7 +7,6 @@ Description: Contains homework materials, vignettes, and supporting code for BIO
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests: 
     testthat,
     knitr,
@@ -17,3 +16,4 @@ Suggests:
     ggplot2,
     readr
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

@@ -21,6 +21,11 @@ knitr::opts_chunk$set(
 )
 set.seed(10)
 library(testthat)
+
+source("../R/generate_partial_clique.R")
+source("../R/compute_maximal_partial_clique_2.R")
+source("../R/compute_maximal_partial_clique_6.R")
+
 ```
 
 # Instructions
@@ -77,7 +82,16 @@ You do *not* make these changes to your R Markdown file.)</span>
 
 <u>**Question 1B**</u>: Looking at two implementations you were given, summarize what you think the implementations are doing in one to four sentences each. (This is to practice reading other people's code.)
 
+Implementation 2 finds a large subset of nodes in an adjacency matrix whose internal edge density is at least `alpha`. It starts with all nodes sorted by degree, then repeatedly removes the node with the smallest degree within the current subgraph until the remaining nodes are dense enough. It returns the selected node indices and their final edge density. 
+
+Implementation 6 finds a dense subset of nodes in an adjacency matrix whose edge density is at least `alpha`. It starts with all nodes, then repeatedly removes the node whose removal gives the biggest improvement in edge density. The method it calculates the edge density is that it computes the proportion of actual edges among the selected nodes out of all possible edges.
+
+
 <u>**Question 1C**</u>: In terms of <u>**coding clarity**</u> (i.e., <u>**not**</u> whether the code gives a good answer), are there recommendations you would give the original author of the code to improve their code's clarity? This can be in documentation, variable naming, whether some code could have been factorized into their dedicated functions, if some portion of code was hard to understand, etc. Give none to two suggestions for each implementation. (You can give no suggestions if you thought the code was spectacular -- even if it's not returning a great answer, you can easily understand what the code does despite being written by someone else.)
+
+For Implementation 2: it is very clear except for some minor spelling mistakes in the documentation.
+
+For Implementation 4: it is better to adjust the code sequence for step 2 and step 3 since now they are reversed.
 
 <u>**Question 1D**</u>: In HW3, you wrote down at least 5 unit tests for your implementation of `compute_maximal_partial_clique()`. <u>**In this R Markdown file**</u> (i.e., not in your `tests` folder), copy-paste your 5 unit tests and see if the two `compute_maximal_partial_clique` implementations you were assigned pass your unit tests. If you were assigned implementations #2 and #7, you would test the functions `compute_maximal_partial_clique_2()` and `compute_maximal_partial_clique_7()`.
 
@@ -85,23 +99,370 @@ Note 1: If you have more than 5 unit tests, you only need to try 5 for this ques
 
 Note 2: When copy-pasting your unit tests, you can directly copy-paste the entire `testthat()` function into this R Markdown file the contents of the `testthat()`. (See the example below in the R Markdown file itself. Here, you can either use `library(testthat)` in the R Markdown file or prefix your `test_that()` and other functions with `testthat::`.)
 
-```{r, error = TRUE}
-test_that("A test that passes", {
-  x = 10
-  expect_true(x == 10)
+```{r test implementation 2, error = TRUE}
+# Category 1: Checking that the function outputs the correct type
+test_that("compute_maximal_partial_clique outputs a correctly structured list", {
+  adj_mat <- matrix(0, nrow = 6, ncol = 6)
+  diag(adj_mat) <- 1
+  adj_mat[1:4, 1:4] <- 1
+
+  output <- compute_maximal_partial_clique_2(adj_mat, alpha = 0.9)
+
+  expect_true(is.list(output))
+  expect_true("clique_idx" %in% names(output))
+  expect_true("edge_density" %in% names(output))
+
+  expect_true(is.numeric(output$clique_idx))
+  expect_true(is.numeric(output$edge_density))
+  expect_equal(length(output$edge_density), 1)
 })
 
-test_that("A test that fails", {
-  x = 10
-  expect_true(x != 10)
+
+# Category 2: Simple checks to make sure result is within the correct range
+test_that("compute_maximal_partial_clique returns values in valid ranges", {
+  adj_mat <- matrix(0, nrow = 8, ncol = 8)
+  diag(adj_mat) <- 1
+  adj_mat[1:5, 1:5] <- 1
+
+  output <- compute_maximal_partial_clique_2(adj_mat, alpha = 0.8)
+
+  expect_true(all(output$clique_idx >= 1))
+  expect_true(all(output$clique_idx <= 8))
+  expect_true(output$edge_density >= 0)
+  expect_true(output$edge_density <= 1)
+  expect_true(output$edge_density >= 0.8)
 })
+
+
+# Category 3: Making sure the function gets the correct answer on a known example
+test_that("compute_maximal_partial_clique finds a known complete clique", {
+  adj_mat <- matrix(0, nrow = 10, ncol = 10)
+  diag(adj_mat) <- 1
+
+  # Nodes 1 to 5 form a complete clique
+  adj_mat[1:5, 1:5] <- 1
+
+  output <- compute_maximal_partial_clique_2(adj_mat, alpha = 1)
+
+  expect_equal(output$clique_idx, 1:5)
+  expect_equal(output$edge_density, 1)
+})
+
+
+# Category 4: Making sure the function runs on many different inputs
+test_that("compute_maximal_partial_clique runs on several graph sizes", {
+  set.seed(123)
+
+  graph_sizes <- c(5, 10, 20, 30)
+
+  for (n in graph_sizes) {
+    output_generated <- generate_partial_clique(
+      n = n,
+      clique_fraction = 0.3,
+      clique_edge_density = 1,
+      density_low = 0
+    )
+
+    adj_mat <- output_generated$adj_mat
+
+    output <- compute_maximal_partial_clique_2(adj_mat, alpha = 1)
+
+    expect_true(is.list(output))
+    expect_true(length(output$clique_idx) >= 1)
+    expect_true(output$edge_density >= 1)
+  }
+})
+
+
+# Unit test 5: Stress testing corner cases
+test_that("compute_maximal_partial_clique handles corner cases gracefully", {
+
+  #Corner case 1: smallest allowed matrix (n = 5)
+  set.seed(1)
+  output_small <- generate_partial_clique(
+    n = 5,
+    clique_fraction = 0.4,
+    clique_edge_density = 1.0,
+    density_low = 0
+  )
+
+  result_small <- compute_maximal_partial_clique_2(
+    output_small$adj_mat,
+    alpha = 1
+  )
+
+  expect_true(is.list(result_small))
+  expect_equal(result_small$edge_density, 1)
+  expect_true(all(result_small$clique_idx >= 1 & result_small$clique_idx <= 5))
+
+
+  #Corner case 2: largest allowed matrix (n = 50)
+  set.seed(2)
+  output_large <- generate_partial_clique(
+    n = 50,
+    clique_fraction = 0.4,
+    clique_edge_density = 1.0,
+    density_low = 0
+  )
+
+  result_large <- compute_maximal_partial_clique_2(
+    output_large$adj_mat,
+    alpha = 1
+  )
+
+  expect_true(is.list(result_large))
+  expect_equal(result_large$edge_density, 1)
+  expect_true(all(result_large$clique_idx >= 1 & result_large$clique_idx <= 50))
+  expect_gte(length(result_large$clique_idx), round(50 * 0.4))
+
+
+  # Corner case 3: minimum allowed alpha = 0.5
+  set.seed(3)
+  output_alpha_low <- generate_partial_clique(
+    n = 20,
+    clique_fraction = 0.4,
+    clique_edge_density = 0.6,
+    density_low = 0
+  )
+
+  result_alpha_low <- compute_maximal_partial_clique_2(
+    output_alpha_low$adj_mat,
+    alpha = 0.5
+  )
+
+  expect_gte(result_alpha_low$edge_density, 0.5)
+  expect_true(all(result_alpha_low$clique_idx >= 1 & result_alpha_low$clique_idx <= 20))
+
+
+  #Corner case 4: alpha = 1.0
+  n_strict <- 8
+  adj_strict <- diag(1, nrow = n_strict, ncol = n_strict)
+  adj_strict[1:5, 1:5] <- 1
+  rownames(adj_strict) <- NULL
+  colnames(adj_strict) <- NULL
+
+  result_strict <- compute_maximal_partial_clique_2(
+    adj_strict,
+    alpha = 1.0
+  )
+
+  expect_equal(result_strict$clique_idx, 1:5)
+  expect_equal(result_strict$edge_density, 1)
+
+
+  # Corner case 5: diagonal-only graph
+  adj_diag <- diag(1, nrow = 6, ncol = 6)
+  rownames(adj_diag) <- NULL
+  colnames(adj_diag) <- NULL
+
+  result_diag <- compute_maximal_partial_clique_2(
+    adj_diag,
+    alpha = 0.5
+  )
+
+  expect_equal(length(result_diag$clique_idx), 1)
+  expect_equal(result_diag$edge_density, 1)
+
+
+  # Corner case 6: complete graph
+  n_complete <- 7
+  adj_complete <- matrix(1L, nrow = n_complete, ncol = n_complete)
+  rownames(adj_complete) <- NULL
+  colnames(adj_complete) <- NULL
+
+  result_complete <- compute_maximal_partial_clique_2(
+    adj_complete,
+    alpha = 0.5
+  )
+
+  expect_equal(length(result_complete$clique_idx), n_complete)
+  expect_equal(result_complete$edge_density, 1)
+})
+
 ```
 
 Note 3: You can write two large R code chunks, one for each implementation's 5 unit tests. Since the implementation you've been assigned might not necessarily pass your unit tests, please set the `error = TRUE` flag in your R code chunk options. (See the example below in the R Markdown file itself.)
 
-```{r, error = TRUE}
-rowSums(1:5)
-"asdf" + "1234"
+```{r test implmentation 6, error = TRUE}
+# Category 1: Checking that the function outputs the correct type
+test_that("compute_maximal_partial_clique outputs a correctly structured list", {
+  adj_mat <- matrix(0, nrow = 6, ncol = 6)
+  diag(adj_mat) <- 1
+  adj_mat[1:4, 1:4] <- 1
+
+  output <- compute_maximal_partial_clique_6(adj_mat, alpha = 0.9)
+
+  expect_true(is.list(output))
+  expect_true("clique_idx" %in% names(output))
+  expect_true("edge_density" %in% names(output))
+
+  expect_true(is.numeric(output$clique_idx))
+  expect_true(is.numeric(output$edge_density))
+  expect_equal(length(output$edge_density), 1)
+})
+
+
+# Category 2: Simple checks to make sure result is within the correct range
+test_that("compute_maximal_partial_clique returns values in valid ranges", {
+  adj_mat <- matrix(0, nrow = 8, ncol = 8)
+  diag(adj_mat) <- 1
+  adj_mat[1:5, 1:5] <- 1
+
+  output <- compute_maximal_partial_clique_6(adj_mat, alpha = 0.8)
+
+  expect_true(all(output$clique_idx >= 1))
+  expect_true(all(output$clique_idx <= 8))
+  expect_true(output$edge_density >= 0)
+  expect_true(output$edge_density <= 1)
+  expect_true(output$edge_density >= 0.8)
+})
+
+
+# Category 3: Making sure the function gets the correct answer on a known example
+test_that("compute_maximal_partial_clique finds a known complete clique", {
+  adj_mat <- matrix(0, nrow = 10, ncol = 10)
+  diag(adj_mat) <- 1
+
+  # Nodes 1 to 5 form a complete clique
+  adj_mat[1:5, 1:5] <- 1
+
+  output <- compute_maximal_partial_clique_6(adj_mat, alpha = 1)
+
+  expect_equal(output$clique_idx, 1:5)
+  expect_equal(output$edge_density, 1)
+})
+
+
+# Category 4: Making sure the function runs on many different inputs
+test_that("compute_maximal_partial_clique runs on several graph sizes", {
+  set.seed(123)
+
+  graph_sizes <- c(5, 10, 20, 30)
+
+  for (n in graph_sizes) {
+    output_generated <- generate_partial_clique(
+      n = n,
+      clique_fraction = 0.3,
+      clique_edge_density = 1,
+      density_low = 0
+    )
+
+    adj_mat <- output_generated$adj_mat
+
+    output <- compute_maximal_partial_clique_6(adj_mat, alpha = 1)
+
+    expect_true(is.list(output))
+    expect_true(length(output$clique_idx) >= 1)
+    expect_true(output$edge_density >= 1)
+  }
+})
+
+
+# Unit test 5: Stress testing corner cases
+test_that("compute_maximal_partial_clique handles corner cases gracefully", {
+
+  #Corner case 1: smallest allowed matrix (n = 5)
+  set.seed(1)
+  output_small <- generate_partial_clique(
+    n = 5,
+    clique_fraction = 0.4,
+    clique_edge_density = 1.0,
+    density_low = 0
+  )
+
+  result_small <- compute_maximal_partial_clique_6(
+    output_small$adj_mat,
+    alpha = 1
+  )
+
+  expect_true(is.list(result_small))
+  expect_equal(result_small$edge_density, 1)
+  expect_true(all(result_small$clique_idx >= 1 & result_small$clique_idx <= 5))
+
+
+  #Corner case 2: largest allowed matrix (n = 50)
+  set.seed(2)
+  output_large <- generate_partial_clique(
+    n = 50,
+    clique_fraction = 0.4,
+    clique_edge_density = 1.0,
+    density_low = 0
+  )
+
+  result_large <- compute_maximal_partial_clique_6(
+    output_large$adj_mat,
+    alpha = 1
+  )
+
+  expect_true(is.list(result_large))
+  expect_equal(result_large$edge_density, 1)
+  expect_true(all(result_large$clique_idx >= 1 & result_large$clique_idx <= 50))
+  expect_gte(length(result_large$clique_idx), round(50 * 0.4))
+
+
+  # Corner case 3: minimum allowed alpha = 0.5
+  set.seed(3)
+  output_alpha_low <- generate_partial_clique(
+    n = 20,
+    clique_fraction = 0.4,
+    clique_edge_density = 0.6,
+    density_low = 0
+  )
+
+  result_alpha_low <- compute_maximal_partial_clique_6(
+    output_alpha_low$adj_mat,
+    alpha = 0.5
+  )
+
+  expect_gte(result_alpha_low$edge_density, 0.5)
+  expect_true(all(result_alpha_low$clique_idx >= 1 & result_alpha_low$clique_idx <= 20))
+
+
+  #Corner case 4: alpha = 1.0
+  n_strict <- 8
+  adj_strict <- diag(1, nrow = n_strict, ncol = n_strict)
+  adj_strict[1:5, 1:5] <- 1
+  rownames(adj_strict) <- NULL
+  colnames(adj_strict) <- NULL
+
+  result_strict <- compute_maximal_partial_clique_6(
+    adj_strict,
+    alpha = 1.0
+  )
+
+  expect_equal(result_strict$clique_idx, 1:5)
+  expect_equal(result_strict$edge_density, 1)
+
+
+  # Corner case 5: diagonal-only graph
+  adj_diag <- diag(1, nrow = 6, ncol = 6)
+  rownames(adj_diag) <- NULL
+  colnames(adj_diag) <- NULL
+
+  result_diag <- compute_maximal_partial_clique_6(
+    adj_diag,
+    alpha = 0.5
+  )
+
+  expect_equal(length(result_diag$clique_idx), 1)
+  expect_equal(result_diag$edge_density, 1)
+
+
+  # Corner case 6: complete graph
+  n_complete <- 7
+  adj_complete <- matrix(1L, nrow = n_complete, ncol = n_complete)
+  rownames(adj_complete) <- NULL
+  colnames(adj_complete) <- NULL
+
+  result_complete <- compute_maximal_partial_clique_6(
+    adj_complete,
+    alpha = 0.5
+  )
+
+  expect_equal(length(result_complete$clique_idx), n_complete)
+  expect_equal(result_complete$edge_density, 1)
+})
+
 ```
 
 Note 4: If you would like to test for things that weren't in your HW3, feel free to do so. (Your tests for this question don't literally need to be the same ones you created for HW3.)
@@ -147,6 +508,27 @@ Using the provided code as a framework, use the `compute_maximal_partial_clique_
 
 Note: For this question, you want to generate an adjacency matrix where `n` is large (i.e., a value close to 50), but `time_limit` is very small (i.e., just a few seconds). You deliberately want to cause a `timed_out` status.
 
+```{r}
+library(UWBiost561)
+
+set.seed(10)
+data <- UWBiost561::generate_partial_clique(
+  n = 50,
+  clique_fraction = 0.5,
+  clique_edge_density = 0.95
+)
+
+set.seed(10)
+result <- UWBiost561::compute_maximal_partial_clique_master(
+  adj_mat = data$adj_mat,
+  alpha = 0.95,
+  number = 1,
+  time_limit = 30
+)
+
+result
+```
+
 <u>**Question 2B**</u>: Describe what you would like your simulation to study in a few sentences. Specifically, you are making a <u>**simulation plan**</u> (see Lecture 8 for details).
 
 Your plan should answer the following questions:
@@ -181,6 +563,16 @@ Note 4: For the simulation study, you will (of course) need to generate random a
 Note 5: If you feel overwhelmed, you can more-or-less plan a simulation study that is very similar to the demo done in class (Lecture 8). Specifically, inside the `hw4_implementations.zip`, there are files `hw4-demo_bayes_execute.R`, `hw4-demo_bayes_execute.slurm`, and `hw4-demo_bayes_plot.R` that effectively tell you how to do a specific simulation study. Feel free to use these scripts as closely as you want for your simulation study. (However, you would still need to make a simulation function and follow the guidelines still. There is still some non-trivial work you would still need to do.)
 
 <span style="color: blue;">(This is a writing question, not a coding question.)</span>
+
+For my simulation study, I will generate random graphs using my `generate_partial_clique()` function. Each graph will be an undirected adjacency matrix with 1s on the diagonal. The function creates a graph with a planted partial clique: a fraction of the nodes are selected to form a dense subgraph, while the rest of the graph contains lower-density random background edges.
+
+I plan to vary the number of nodes, `n`, across three levels: `n = 10`, `n = 20`, and `n = 30` and keep `clique_fraction = 0.5`, `clique_edge_density = 0.95`, and `alpha = 0.95` fixed. This lets me study how the difficulty of finding a maximal partial clique changes as the graph gets larger.
+
+For each generated adjacency matrix, I will run all 9 implementations of `compute_maximal_partial_clique` using `compute_maximal_partial_clique_master()`. I will use `number = 1, 2, ..., 9` to call the different implementations, and `time_limit = 30` for each method.
+
+I hope to learn which implementations tend to find the largest valid partial cliques, which implementations time out more often, and how performance changes as `n` increases. I expect that larger graphs will be harder, so the methods may take longer or time out more often for larger values of `n`.
+
+I plan to run 3 trials for each level of `n`, so there would be 81 total method runs. Since each method run has a maximum time limit of 30 seconds, the maximum possible runtime is 2430 seconds = 40.5 minutes.
 
 <u>**Question 2C**</u>: In your `R` folder, design a function that executes your intended simulation plan. (I am purposely being loose and very open-ended about designing this simulation regarding the inputs or outputs. In contrast to HW3, where everything was spelled out explicitly, I am now giving you the task of meaningfully designing the inputs/outputs.)
 
@@ -219,6 +611,14 @@ figures inside this R Markdown file.
 
 The intent of this question is to provide "evidence" that your `devtools::check()`
 went smoothly. You do not need to worry about what your screenshots show specifically.
+
+```{r, echo=TRUE, out.width = "400px", fig.align="center", echo = FALSE, fig.cap=c("First screenshot in Question 2E.")}
+knitr::include_graphics("figures/check_1.png")
+```
+
+```{r, echo=TRUE, out.width = "400px", fig.align="center", echo = FALSE, fig.cap=c("Second screenshot in Question 2E.")}
+knitr::include_graphics("figures/check_2.png")
+```
 
 # Q3: Performing the simulation study
 

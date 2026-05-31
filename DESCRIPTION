@@ -12,6 +12,7 @@ Suggests:
     knitr,
     rmarkdown,
     bookdown,
+    devtools,
     tidyverse,
     ggplot2,
     readr

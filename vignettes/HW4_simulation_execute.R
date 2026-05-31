@@ -1,5 +1,6 @@
 rm(list = ls())
 
+.libPaths("~/R/library")
 library(UWBiost561)
 
 n_levels <- c(10, 20, 30)

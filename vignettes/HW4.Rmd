@@ -666,6 +666,9 @@ in this R Markdown file.)</span>
 
 Finally, include your plot in this R Markdown file. (I'm having you put your plot in your `vignettes` folder and push/pull your `UWBiost561` package because I'm assuming you knit this `HW4.Rmd` file locally on your laptop, but you need to somehow get your plot from Bayes onto your local laptop.)
 
+```{r, echo = TRUE, out.width = "90%"}
+knitr::include_graphics("HW4_simulation.png")
+```
 # Q4: Describing your final project
 
 <mark>**Intent**: The intent of this question is to make sure you have a plan for the final project.</mark>
@@ -673,6 +676,8 @@ Finally, include your plot in this R Markdown file. (I'm having you put your plo
 I will release the final project specifications (again, which involve making a PkgDown website of any R package of your choosing of any scope) on Canvas. This will be released (at the latest) by May 25th.
 
 Please write (in one to five sentences) what you are thinking of doing for your final project. If your answer hasn't changed since HW3, you can copy-paste your answer from HW3 into this question for HW4.
+
+For my final project, I plan to build a new R package for numerical integration. The package will include functions for approximating definite integrals using methods such as Riemann sums, the trapezoidal rule, and Simpson's rule. I will include examples comparing these numerical approximations to exact integrals for functions where the true answer is known. I plan to make a pkgdown website for this package with documentation and a vignette showing how to use the main functions.
 
 # Q5: Feedback (Optional)
 
